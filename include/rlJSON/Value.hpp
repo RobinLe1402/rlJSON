@@ -19,12 +19,12 @@ namespace rlJSON
 
 		enum class Type
 		{
-			string,
-			number,
-			object,
-			array,
-			boolean,
-			null
+			String,
+			Number,
+			Object,
+			Array,
+			Boolean,
+			Null
 		};
 
 
@@ -32,7 +32,7 @@ namespace rlJSON
 
 		virtual ~Value() = default;
 
-		Type type() { return m_eType; }
+		Type type() const { return m_eType; }
 
 		virtual std::string encode() const = 0;
 		

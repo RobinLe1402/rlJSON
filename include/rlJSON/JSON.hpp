@@ -22,7 +22,21 @@ namespace rlJSON
 
 	class JSON
 	{
+	public: // static methods
+
+		static JSON CreateAsArray();
+		static JSON CreateAsObject();
+
+
 	public: // methods
+
+		JSON();
+		JSON(const JSON &other);
+		JSON(JSON &&) = default;
+		~JSON() = default;
+
+		JSON &operator=(const JSON &) = default;
+		JSON &operator=(JSON &&) = default;
 
 		bool loadFromFile(const wchar_t *szFilename); // todo
 		bool saveToFile(const wchar_t *szFilename);

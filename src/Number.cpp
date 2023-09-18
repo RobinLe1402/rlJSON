@@ -6,15 +6,46 @@
 namespace rlJSON
 {
 
-	Number::Number(double d) : m_dValue(d) {}
+	Number::Number(uint64_t i) :
+		Value(rlJSON::Value::Type::Number),
+		m_eType(Type::UInt),
+		m_iUIntValue(i),
+		m_iIntValue(i),
+		m_dFloatValue((double)i)
+	{}
+
+	Number::Number(int64_t i) :
+		Value(rlJSON::Value::Type::Number),
+		m_eType(Type::UInt),
+		m_iUIntValue(i),
+		m_iIntValue(i),
+		m_dFloatValue((double)i)
+	{}
+
+	Number::Number(double f) :
+		Value(rlJSON::Value::Type::Number),
+		m_eType(Type::Float),
+		m_iUIntValue ((uint64_t)f),
+		m_iIntValue  ((int64_t)f),
+		m_dFloatValue(f)
+	{}
 
 	std::string Number::encode() const
 	{
-		const int iPrec = (m_dValue == std::fmod(m_dValue, 1.0)) ? 0 : 17;
+		switch (m_eType)
+		{
+		case Type::UInt:
+			return std::to_string(m_iUIntValue);
+			
+		case Type::Int:
+			return std::to_string(m_iIntValue);
 
-		std::stringstream os;
-		os << std::defaultfloat << std::setprecision(iPrec) << m_dValue;
-		return os.str();
+		case Type::Float:
+			return std::to_string(m_dFloatValue);
+
+		default:
+			throw std::exception();
+		}
 	}
 
 }

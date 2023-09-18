@@ -6,12 +6,12 @@
 namespace rlJSON
 {
 
-	String::String(const wchar_t *sz) : Value(Value::Type::string), m_sValue(sz)
+	String::String(const wchar_t *sz) : Value(Value::Type::String), m_sValue(sz)
 	{
 		removeIllegalChars();
 	}
 
-	String::String(const char *sz) : Value(Value::Type::string), m_sValue(strlen(sz), 0)
+	String::String(const char *sz) : Value(Value::Type::String), m_sValue(strlen(sz), 0)
 	{
 		for (size_t i = 0; i < m_sValue.length(); ++i)
 		{
@@ -20,7 +20,14 @@ namespace rlJSON
 		removeIllegalChars();
 	}
 
-	std::string String::encode()
+	int String::operator< (const String &other) const { return m_sValue <  other.m_sValue; }
+	int String::operator<=(const String &other) const { return m_sValue <= other.m_sValue; }
+	int String::operator> (const String &other) const { return m_sValue >  other.m_sValue; }
+	int String::operator>=(const String &other) const { return m_sValue >= other.m_sValue; }
+	int String::operator==(const String &other) const { return m_sValue == other.m_sValue; }
+	int String::operator!=(const String &other) const { return m_sValue != other.m_sValue; }
+
+	std::string String::encode() const
 	{
 		if (m_sValue.empty())
 			return "\"\"";
@@ -71,7 +78,8 @@ namespace rlJSON
 		}
 
 		std::string sResult;
-		sResult.reserve(iEncodedLen);
+		sResult.reserve(iEncodedLen + 2);
+		sResult +=  '\"';
 		for (size_t i = 0; i < iLen; ++i)
 		{
 			const char32_t c = szUTF32[i];
@@ -129,6 +137,7 @@ namespace rlJSON
 			}
 		}
 
+		sResult += '\"';
 		return sResult;
 	}
 

@@ -23,25 +23,45 @@ namespace rlJSON
 
 	class Number : public Value
 	{
+	public: // types
+
+		enum class Type
+		{
+			UInt,
+			Int,
+			Float
+		};
+
+
 	public: // methods
 
 		Number() = default;
 		Number(const Number &) = default;
 		Number(Number&&) = default;
-		Number(double d);
+		Number(uint64_t i);
+		Number(int64_t i);
+		Number(double f);
 		~Number() = default;
 
 		Number &operator=(const Number &) = default;
 		Number &operator=(Number &&) = default;
 
-		double value() const { return m_dValue; }
+		Type numberType() const { return m_eType; }
+
+		uint64_t valueUInt()  const { return m_iUIntValue;  }
+		int64_t  valueInt()   const { return m_iIntValue;   }
+		double   valueFloat() const { return m_dFloatValue; }
 
 		std::string encode() const override;
 
 
 	private: // variables
 
-		double m_dValue = 0;
+		Type m_eType = Type::UInt;
+
+		uint64_t m_iUIntValue = 0;
+		int64_t m_iIntValue   = 0;
+		double m_dFloatValue  = 0;
 
 	};
 

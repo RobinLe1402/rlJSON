@@ -29,6 +29,13 @@ namespace rlJSON
 		String &operator=(const String &) = default;
 		String &operator=(String &&) = default;
 
+		int operator< (const String &other) const;
+		int operator<=(const String &other) const;
+		int operator> (const String &other) const;
+		int operator>=(const String &other) const;
+		int operator==(const String &other) const;
+		int operator!=(const String &other) const;
+
 		const std::wstring &value() const { return m_sValue; }
 
 		std::string encode() const override;
