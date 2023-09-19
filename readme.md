@@ -3,8 +3,12 @@
 This repo contains the static library `rlJSON`, a parser for JSON files.
 
 
+## Dependencies
 
-## Misc
+* [rlText](https://rle.sh/git/rlText) (for reading and writing text files)
+
+
+## Enviroment
 
 | Category              | Value                     |
 |-----------------------|---------------------------|
