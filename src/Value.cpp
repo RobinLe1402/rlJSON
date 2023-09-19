@@ -40,21 +40,21 @@ namespace rlJSON
 			return sResult;
 		}
 
+		const std::map<char, char> oEscapeChars =
+		{
+			{ '"',  '"'  },
+			{ '\\', '\\' },
+			{ '/',  '/'  },
+			{ '\b', 'b'  },
+			{ '\f', 'f'  },
+			{ '\n', 'n'  },
+			{ '\r', 'r'  },
+			{ '\t', 't'  }
+		};
+
 		std::wstring EncodeString(const std::wstring &s)
 		{
 			std::wstring sEncoded = s;
-
-			const std::map<char, char> oEscapeChars =
-			{
-				{ '"',  '"'  },
-				{ '\\', '\\' },
-				{ '/',  '/'  },
-				{ '\b', 'b'  },
-				{ '\f', 'f'  },
-				{ '\n', 'n'  },
-				{ '\r', 'r'  },
-				{ '\t', 't'  }
-			};
 
 			// 1. count characters to be escaped
 			size_t iEscapedCount = 0;
@@ -141,6 +141,7 @@ namespace rlJSON
 	{
 		clear();
 
+		m_eType = other.m_eType;
 		switch (other.m_eType)
 		{
 		case Type::Array:
@@ -318,6 +319,8 @@ namespace rlJSON
 							iMultiplicator;
 						iMultiplicator *= 10;
 					}
+
+					return iValue;
 				}
 			}
 
@@ -535,44 +538,212 @@ namespace rlJSON
 	{
 		void SkipWhitespace(const wchar_t *&sz)
 		{
-			while ((*sz <= 0xFF) == 0 && isspace(*sz))
+			while (*sz <= 0xFF && isspace(*sz))
 				++sz;
 		}
 
 		bool ParseArray(const wchar_t *&sz, Array &oDest)
 		{
-			// TODO
-			return false;
+			if (*sz != L'[')
+				return false;
+
+			oDest.clear();
+
+			++sz;
+			SkipWhitespace(sz);
+			while (*sz)
+			{
+				if (*sz == L']')
+				{
+					++sz;
+					return true;
+				}
+
+				Value o;
+				if (!o.loadFromString(sz))
+					return false; // value could not be parsed
+
+				oDest.push_back(o);
+
+				if (*sz == L',')
+					++sz;
+				else if (*sz != L']')
+					return false; // invalid syntax. After a value must be either a "," or a "]".
+			}
+
+			return true;
 		}
 
 		bool ParseBoolean(const wchar_t *&sz, bool &bDest)
 		{
-			// TODO
+			if (memcmp(sz, L"true", 8) == 0)
+			{
+				bDest = true;
+				sz += 4;
+				return true;
+			}
+
+			if (memcmp(sz, L"false", 10) == 0)
+			{
+				bDest = false;
+				sz += 5;
+				return true;
+			}
+
 			return false;
 		}
 
 		bool ParseNull(const wchar_t *&sz)
 		{
-			// TODO
+			if (memcmp(sz, L"null", 8) == 0)
+			{
+				sz += 4;
+				return true;
+			}
+
 			return false;
 		}
 
 		bool ParseNumber(const wchar_t *&sz, Number &oDest)
 		{
-			// TODO
-			return false;
+			std::wregex regex(LR"REGEX(^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)REGEX");
+			std::wcmatch match;
+			if (!std::regex_search(sz, match, regex))
+				return false; // no number found
+			
+			Value o = match[0].str();
+			sz += match[0].length();
+			oDest = o.toNumber();
+			return true;
 		}
 
 		bool ParseObject(const wchar_t *&sz, Object &oDest)
 		{
-			// TODO
+			if (*sz != L'{')
+				return false;
+
+			oDest.clear();
+
+			++sz;
+			SkipWhitespace(sz);
+			while (*sz)
+			{
+				if (*sz == L'}')
+				{
+					++sz;
+					return true;
+				}
+
+				Value o;
+				if (!o.loadFromString(sz))
+					return false; // value could not be parsed
+
+				if (o.type() != Value::Type::String)
+					return false; // string expected
+
+				std::wstring sKey = o.toString();
+				
+				SkipWhitespace(sz);
+				if (*sz != L':')
+					return false; // after the value name always comes the ":"
+				++sz;
+
+				SkipWhitespace(sz);
+				if (!o.loadFromString(sz))
+					return false; // value couldn't be parsed
+
+				oDest[sKey] = o;
+
+				if (*sz == L',')
+					++sz;
+				else if (*sz != L'}')
+					return false; // invalid syntax. After a value must be either a "," or a "}".
+			}
+
+			return true;
+		}
+
+		bool ParseHexDigit(wchar_t c, unsigned char &iDest)
+		{
+			if (c >= L'0' && c <= L'9')
+			{
+				iDest = c - L'0';
+				return true;
+			}
+			else if (c >= 'A' && c <= 'F')
+			{
+				iDest = c - L'A' + 0xA;
+				return true;
+			}
+			else if (c >= 'a' && c <= 'f')
+			{
+				iDest = c - L'a' + 0xA;
+				return true;
+			}
+
 			return false;
 		}
 
 		bool ParseString(const wchar_t *&sz, std::wstring &sDest)
 		{
-			// TODO
-			return false;
+			if (*sz != L'"')
+				return false;
+
+			sDest.clear();
+			while (*(++sz))
+			{
+				// handle escape sequences
+				if (*sz == L'\\')
+				{
+					++sz;
+					if (*sz == L'u')
+					{
+						unsigned char iHexValues[4]{};
+						if (!ParseHexDigit(sz[1], iHexValues[0]) ||
+							!ParseHexDigit(sz[2], iHexValues[1]) ||
+							!ParseHexDigit(sz[3], iHexValues[2]) ||
+							!ParseHexDigit(sz[4], iHexValues[3]))
+							return false; // invalid Unicode escape sequence
+
+						wchar_t c = iHexValues[3];
+						c |= wchar_t(iHexValues[2]) << 4;
+						c |= wchar_t(iHexValues[1]) << 8;
+						c |= wchar_t(iHexValues[0]) << 12;
+
+						sDest += c;
+						sz += 5; // u + 4 digits
+					}
+
+					else
+					{
+						bool bFound = false;
+						for (const auto &it : oEscapeChars)
+						{
+							if (it.second == *sz)
+							{
+								bFound = true;
+								sDest += it.first;
+								break;
+							}
+						}
+						if (!bFound)
+							return false; // unknown escape sequence
+					}
+				}
+
+				// end of string
+				else if (*sz == L'"')
+				{
+					++sz;
+					return true;
+				}
+
+				// regular character
+				else
+					sDest += *sz;
+			}
+
+			return false; // unexpected EOF
 		}
 	}
 
