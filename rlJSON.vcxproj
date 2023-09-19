@@ -139,31 +139,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\rlJSON\Array.hpp" />
-    <ClInclude Include="include\rlJSON\Boolean.hpp" />
-    <ClInclude Include="include\rlJSON\Null.hpp" />
-    <ClInclude Include="include\rlJSON\Object.hpp" />
-    <ClInclude Include="include\rlJSON\JSON.hpp" />
-    <ClInclude Include="include\rlJSON\Number.hpp" />
-    <ClInclude Include="include\rlJSON\SmartPointers.hpp" />
-    <ClInclude Include="include\rlJSON\String.hpp" />
-    <ClInclude Include="include\rlJSON\Value.hpp" />
-    <ClInclude Include="private-includes\Tools.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\Array.cpp" />
-    <ClCompile Include="src\Boolean.cpp" />
-    <ClCompile Include="src\JSON.cpp" />
-    <ClCompile Include="src\Null.cpp" />
-    <ClCompile Include="src\Number.cpp" />
-    <ClCompile Include="src\Object.cpp" />
-    <ClCompile Include="src\String.cpp" />
-    <ClCompile Include="src\Tools.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="dependencies\rlText\rlText.vcxproj">
       <Project>{47b9e7dc-e69d-4b1b-ac12-14ffdcdcfaac}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\rlJSON\Core.hpp" />
+    <ClInclude Include="include\rlJSON\Number.hpp" />
+    <ClInclude Include="include\rlJSON\Value.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Core.cpp" />
+    <ClCompile Include="src\Number.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

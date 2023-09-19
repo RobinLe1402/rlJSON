@@ -6,22 +6,15 @@
 
 
 
-// TODO: RegEx
-// (-?(?:0|[1-9]\d*))((?:\.\d+)?)((?:e[-+]?\d+)?)
-// Group 1: int part, including optional -
-// Group 2: decimal part, including period (optional, might be empty string)
-// Group 3: exponent, including e/E and optional + or -
-
-
-
-#include "Value.hpp"
+#include <cstdint>
+#include <string>
 
 
 
 namespace rlJSON
 {
 
-	class Number : public Value
+	class Number final
 	{
 	public: // types
 
@@ -35,33 +28,85 @@ namespace rlJSON
 
 	public: // methods
 
-		Number() = default;
-		Number(const Number &) = default;
-		Number(Number&&) = default;
-		Number(uint64_t i);
-		Number(int64_t i);
-		Number(double f);
-		~Number() = default;
+		constexpr Number()              noexcept = default;
+		constexpr Number(const Number&) noexcept = default;
+		constexpr Number(Number&&)      noexcept = default;
+		~Number()                                = default;
+
+		Number(int i)       noexcept : Number((intmax_t)i) {}
+		Number(uintmax_t i) noexcept;
+		Number(intmax_t i)  noexcept;
+		Number(double d)    noexcept;
 
 		Number &operator=(const Number &) = default;
-		Number &operator=(Number &&) = default;
+		Number &operator=(Number &&)      = default;
 
-		Type numberType() const { return m_eType; }
+		Type type() const noexcept { return m_eType; }
 
-		uint64_t valueUInt()  const { return m_iUIntValue;  }
-		int64_t  valueInt()   const { return m_iIntValue;   }
-		double   valueFloat() const { return m_dFloatValue; }
+		std::wstring toString() const noexcept;
 
-		std::string encode() const override;
+		uintmax_t asUInt()  const noexcept;
+		intmax_t  asInt()   const noexcept;
+		double    asFloat() const noexcept;
+
+		bool isInt()   const noexcept { return !isFloat(); }
+		bool isFloat() const noexcept { return m_eType == Type::Float; }
+
+		explicit operator bool() const noexcept;
+		bool operator!() const noexcept { return !((bool)*this); }
+
+		explicit operator uintmax_t() const noexcept { return asUInt(); }
+		explicit operator intmax_t()  const noexcept { return asInt(); }
+		explicit operator double()    const noexcept { return asFloat(); }
+
+		Number  operator+ (const Number &other) const noexcept;
+		Number &operator+=(const Number &other) noexcept { return *this = *this + other; }
+		Number  operator- (const Number &other) const noexcept;
+		Number &operator-=(const Number &other) noexcept { return *this = *this - other; }
+		Number  operator* (const Number &other) const noexcept;
+		Number &operator*=(const Number &other) noexcept { return *this = *this * other; }
+		Number  operator/ (const Number &other) const;
+		Number &operator/=(const Number &other) { return *this = *this / other; }
+		Number  operator% (const Number &other) const noexcept;
+		Number &operator%=(const Number &other) noexcept { return *this = *this % other; }
+
+		bool operator< (const Number &other) const noexcept
+		{
+			return this->asFloat() < other.asFloat();
+		}
+		bool operator<=(const Number &other) const noexcept
+		{
+			return this->asFloat() <= other.asFloat();
+		}
+		bool operator==(const Number &other) const noexcept;
+		bool operator>=(const Number &other) const noexcept
+		{
+			return this->asFloat() >= other.asFloat();
+		}
+		bool operator> (const Number &other) const noexcept
+		{
+			return this->asFloat() > other.asFloat();
+		}
+
+		Number operator-() const noexcept;
+
+		Number absolute() const noexcept;
+
+
+	private: // types
+
+		union ValueUnion
+		{
+			uintmax_t iUnsigned;
+			intmax_t  iSigned;
+			double    dFloat;
+		};
 
 
 	private: // variables
 
-		Type m_eType = Type::UInt;
-
-		uint64_t m_iUIntValue = 0;
-		int64_t m_iIntValue   = 0;
-		double m_dFloatValue  = 0;
+		Type m_eType        = Type::UInt;
+		ValueUnion m_uValue = { 0 };
 
 	};
 

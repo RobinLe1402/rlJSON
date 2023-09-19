@@ -1,31 +1,24 @@
-#include <rlJSON/JSON.hpp>
-#include <rlJSON/Array.hpp>
-#include <rlJSON/Number.hpp>
-#include <rlJSON/Object.hpp>
-#include <rlJSON/String.hpp>
-
-#include <rlJSON/SmartPointers.hpp>
+#include "rlJSON/Number.hpp"
 
 int main(int argc, char* argv[])
 {
-	rlJSON::JSON json;
-	rlJSON::Object &rootobj = *dynamic_cast<rlJSON::Object *>(json.root());
+	rlJSON::Number no;
+	printf("Default: %ls\n", no.toString().c_str());
 
-	auto testval = rlJSON::MakeUnique(5ui64);
-	auto testarr = rlJSON::MakeUniqueArray();
+	no = 82953454.0;
+	printf("82953452.0 = %ls\n", no.toString().c_str());
 
-	auto testarv1 = rlJSON::MakeUnique(1.0);
-	auto testarv2 = rlJSON::MakeUnique(2ui64);
-	auto testarv3 = rlJSON::MakeUnique(3.0);
+	no = -no;
+	printf("* -1 = %ls\n", no.toString().c_str());
 
-	testarr->value().push_back(testarv1.get());
-	testarr->value().push_back(testarv2.get());
-	testarr->value().push_back(testarv3.get());
+	no /= 2.0;
+	printf("/= 2.0 = %ls\n", no.toString().c_str());
 
-	rootobj.value()["testvalue"] = testval.get();
-	rootobj.value()["testarray"] = testarr.get();
+	no /= 2.0;
+	printf("/= 2.0 = %ls\n", no.toString().c_str());
 
-	json.saveToFile(LR"(E:\[TempDel]\test.json)");
+	no *= 200000000000000000000.0;
+	printf("*= 200000000000000000000.0 = %ls\n", no.toString().c_str());
 
 	return 0;
 }
