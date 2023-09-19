@@ -531,9 +531,123 @@ namespace rlJSON
 		m_sValue_String.clear();
 	}
 
+	namespace
+	{
+		void SkipWhitespace(const wchar_t *&sz)
+		{
+			while ((*sz <= 0xFF) == 0 && isspace(*sz))
+				++sz;
+		}
+
+		bool ParseArray(const wchar_t *&sz, Array &oDest)
+		{
+			// TODO
+			return false;
+		}
+
+		bool ParseBoolean(const wchar_t *&sz, bool &bDest)
+		{
+			// TODO
+			return false;
+		}
+
+		bool ParseNull(const wchar_t *&sz)
+		{
+			// TODO
+			return false;
+		}
+
+		bool ParseNumber(const wchar_t *&sz, Number &oDest)
+		{
+			// TODO
+			return false;
+		}
+
+		bool ParseObject(const wchar_t *&sz, Object &oDest)
+		{
+			// TODO
+			return false;
+		}
+
+		bool ParseString(const wchar_t *&sz, std::wstring &sDest)
+		{
+			// TODO
+			return false;
+		}
+	}
+
 	bool Value::loadFromString(const wchar_t *& szJSON) noexcept
 	{
-		return false; // TODO
+		clear();
+
+		SkipWhitespace(szJSON);
+		if (*szJSON == 0)
+			return false; // unexpected EOF
+
+		switch (*szJSON)
+		{
+		case L'[': // [ --> Array
+		{
+			Array o;
+			if (!ParseArray(szJSON, o))
+				return false; // invalid syntax (array expected)
+
+			*this = o;
+			break;
+		}
+
+		case L't': // t --> "true"  --> Boolean
+		case L'f': // f --> "false" --> Boolean
+		{
+			bool b;
+			if (!ParseBoolean(szJSON, b))
+				return false; // invalid syntax (boolean expected)
+
+			*this = b;
+			break;
+		}
+
+		case L'n': // n --> "null"
+		{
+			if (!ParseNull(szJSON))
+				return false; // invalid syntax (null expected)
+
+			break;
+		}
+
+		default: // Number
+		{
+			Number o;
+			if (!ParseNumber(szJSON, o))
+				return false; // invalid syntax (number expected)
+
+			*this = o;
+			break;
+		}
+
+		case L'{': // { --> Object
+		{
+			Object o;
+			if (!ParseObject(szJSON, o))
+				return false; // invalid syntax (object expected)
+
+			*this = o;
+			break;
+		}
+
+		case L'\"': // " --> String
+		{
+			std::wstring s;
+			if (!ParseString(szJSON, s))
+				return false; // invalid syntax (string expected)
+
+			*this = s;
+			break;
+		}
+		}
+
+		SkipWhitespace(szJSON);
+		return true;
 	}
 
 	bool Value::loadFromFile(const wchar_t *szPath) noexcept
