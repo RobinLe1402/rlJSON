@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="src\Core.cpp" />
     <ClCompile Include="src\Number.cpp" />
+    <ClCompile Include="src\Value.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
