@@ -7,8 +7,17 @@ int main(int argc, char* argv[])
 	rlJSON::Value oRoot{ rlJSON::Object() };
 	auto &oRootData = *oRoot.object();
 
-	oRootData[L"testval"] = 12;
-	oRootData[L"xD"] = rlJSON::Array({ 1, 2, 3 });
+	oRootData[L"testnull"]   = {};
+	oRootData[L"testarray"]  = rlJSON::Array({ 1, L"2", 3.1 });
+	oRootData[L"testbool"]   = false;
+	oRootData[L"testnumber"] = 12;
+	oRootData[L"teststring"] = L"ASDF";
+	oRootData[L"testobject"] = rlJSON::Object(
+		{
+			{ L"named-item", 0 },
+			{ L"teststring", L"Hello World!" }
+		}
+	);
 
 	const wchar_t szTestFilePath[] = LR"(C:\[TempDel]\test.json)";
 

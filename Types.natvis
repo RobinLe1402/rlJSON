@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="rlJSON::Value">
+		<DisplayString Condition="m_eType == Type::Null">Null</DisplayString>
+		<DisplayString Condition="m_eType == Type::Array">{m_oValue_Array} (Array)</DisplayString>
+		<DisplayString Condition="m_eType == Type::Boolean">{m_bValue_Boolean}</DisplayString>
+		<DisplayString Condition="m_eType == Type::Number">{m_oValue_Number}</DisplayString>
+		<DisplayString Condition="m_eType == Type::Object">{m_oValue_Object} (Object)</DisplayString>
+		<DisplayString Condition="m_eType == Type::String">{m_sValue_String}</DisplayString>
+		<Expand>
+			<ExpandedItem Condition="m_eType == Type::Array">m_oValue_Array</ExpandedItem>
+			<ExpandedItem Condition="m_eType == Type::Number">m_oValue_Number</ExpandedItem>
+			<ExpandedItem Condition="m_eType == Type::Object">m_oValue_Object</ExpandedItem>
+			<ExpandedItem Condition="m_eType == Type::String">m_sValue_String</ExpandedItem>
+		</Expand>
+	</Type>
+	<Type Name="rlJSON::Number">
+		<DisplayString Condition="m_eType == Type::UInt">{m_uValue.iUnsigned}</DisplayString>
+		<DisplayString Condition="m_eType == Type::Int">{m_uValue.iSigned}</DisplayString>
+		<DisplayString Condition="m_eType == Type::Float">{m_uValue.dFloat}</DisplayString>
+	</Type>
+</AutoVisualizer>

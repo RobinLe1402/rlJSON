@@ -153,6 +153,9 @@
     <ClCompile Include="src\Number.cpp" />
     <ClCompile Include="src\Value.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Types.natvis" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
