@@ -1,6 +1,8 @@
 #include "rlJSON/Value.hpp"
-#include "rlTextDLL/FileIO.hpp"
-#include "rlTextDLL/Windows.hpp"
+#include <rlTextDLL/FileIO.hpp>
+#include <rlTextDLL/Types.h>
+#include <rlTextDLL/UTF8StringHelper.hpp>
+#include <rlTextDLL/Windows.hpp>
 
 #include <algorithm>
 #include <regex>
@@ -13,9 +15,9 @@ namespace rlJSON
 	namespace
 	{
 
-		std::wstring Indent(std::wstring &&rval)
+		std::u8string Indent(std::u8string &&rval)
 		{
-			std::wstring sResult = std::move(rval);
+			std::u8string sResult = std::move(rval);
 
 			if (sResult.length() == 0)
 				return sResult;
@@ -53,9 +55,9 @@ namespace rlJSON
 			{ '\t', 't'  }
 		};
 
-		std::wstring EncodeString(const std::wstring &s)
+		std::u8string EncodeString(const std::u8string &s)
 		{
-			std::wstring sEncoded = s;
+			std::u8string sEncoded = s;
 
 			// 1. count characters to be escaped
 			size_t iEscapedCount = 0;
@@ -81,13 +83,13 @@ namespace rlJSON
 				const auto it = oEscapeChars.find((char)c);
 				if (it != oEscapeChars.end())
 				{
-					sEncoded[i - 1] = L'\\';
+					sEncoded[i - 1] = '\\';
 					sEncoded.insert(i, 1, it->second);
 				}
 			}
 
-			sEncoded.insert(0, 1, L'"');
-			sEncoded += L'"';
+			sEncoded.insert(0, 1, '"');
+			sEncoded += '"';
 
 			return sEncoded;
 		}
@@ -126,15 +128,15 @@ namespace rlJSON
 		m_eType(Type::Object),
 		m_oValue_Object(std::move(rval)) {}
 
-	Value::Value(const wchar_t *sz) noexcept :
+	Value::Value(const char8_t *sz) noexcept :
 		m_eType(Type::String),
 		m_sValue_String(sz) {}
 
-	Value::Value(const std::wstring &val) noexcept :
+	Value::Value(const std::u8string &val) noexcept :
 		m_eType(Type::String),
 		m_sValue_String(val) {}
 
-	Value::Value(std::wstring &&rval) noexcept :
+	Value::Value(std::u8string &&rval) noexcept :
 		m_eType(Type::String),
 		m_sValue_String(std::move(rval)) {}
 
@@ -226,7 +228,7 @@ namespace rlJSON
 			o.reserve(m_oValue_Object.size());
 			for (const auto &it : m_oValue_Object)
 			{
-				o.push_back(EncodeString(it.first) + L" => "s + it.second.toString(true));
+				o.push_back(EncodeString(it.first) + u8" => "s + it.second.toString(true));
 			}
 			return o;
 		}
@@ -240,7 +242,7 @@ namespace rlJSON
 				if ((c & 0xFC00) == 0xD800)
 				{
 					++i;
-					std::wstring s(2, ' ');
+					std::u8string s(2, ' ');
 					s[0] = c;
 					s[1] = m_sValue_String[i];
 					o.push_back(std::move(s));
@@ -293,9 +295,11 @@ namespace rlJSON
 			return m_oValue_Object.size();
 		case Type::String:
 		{
+			const auto sASCII = rlText::ToString(m_sValue_String);
+
 			// positive int
-			std::wregex regex(LR"REGEX(\d+)REGEX");
-			if (std::regex_match(m_sValue_String, regex))
+			std::regex regex(R"REGEX(\d+)REGEX");
+			if (std::regex_match(sASCII, regex))
 			{
 				// approximated value as float
 				double dValue = 0;
@@ -326,8 +330,8 @@ namespace rlJSON
 			}
 
 			// negative int
-			regex = LR"REGEX(-\d+)REGEX";
-			if (std::regex_match(m_sValue_String, regex))
+			regex = R"REGEX(-\d+)REGEX";
+			if (std::regex_match(sASCII, regex))
 			{
 				// approximated value as float
 				double dValue = 0;
@@ -356,8 +360,8 @@ namespace rlJSON
 			}
 
 			// float
-			regex = LR"REGEX(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)REGEX";
-			if (std::regex_match(m_sValue_String, regex))
+			regex = R"REGEX(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)REGEX";
+			if (std::regex_match(sASCII, regex))
 			{
 				std::string s;
 				s.reserve(m_sValue_String.length());
@@ -383,7 +387,7 @@ namespace rlJSON
 			Object o;
 			for (size_t i = 0; i < m_oValue_Array.size(); ++i)
 			{
-				o[std::to_wstring(i)] = m_oValue_Array[i];
+				o[rlText::ToU8String(std::to_string(i))] = m_oValue_Array[i];
 			}
 			return o;
 		}
@@ -391,7 +395,7 @@ namespace rlJSON
 		case Type::Null:
 		case Type::Number:
 		case Type::String:
-			return { { L"value", *this }};
+			return { { u8"value", *this }};
 
 		case Type::Object:
 			return m_oValue_Object;
@@ -401,44 +405,44 @@ namespace rlJSON
 		return {}; // to avoid compiler warning
 	}
 
-	std::wstring Value::toString(bool bEncodeString) const noexcept
+	std::u8string Value::toString(bool bEncodeString) const noexcept
 	{
 		switch (m_eType)
 		{
 		case Type::Array:
 		{
-			std::wstring sResult = L"[";
+			std::u8string sResult = u8"[";
 			for (const auto &val : m_oValue_Array)
 			{
-				sResult += L"\n"s + Indent(val.toString(true)) + L",";
+				sResult += u8"\n"s + Indent(val.toString(true)) + u8",";
 			}
 			if (m_oValue_Array.size() > 0)
-				sResult[sResult.length() - 1] = L'\n'; // replace last comma with linebreak
-			sResult += L"]";
+				sResult[sResult.length() - 1] = u8'\n'; // replace last comma with linebreak
+			sResult += u8"]";
 
 			return sResult;
 		}
 
 		case Type::Boolean:
-			return m_bValue_Boolean ? L"true" : L"false";
+			return m_bValue_Boolean ? u8"true" : u8"false";
 
 		case Type::Null:
-			return L"null";
+			return u8"null";
 
 		case Type::Number:
 			return m_oValue_Number.toString();
 
 		case Type::Object:
 		{
-			std::wstring sResult = L"{";
+			std::u8string sResult = u8"{";
 			for (const auto &val : m_oValue_Object)
 			{
-				sResult += L"\n"s + L"\t"s + EncodeString(val.first) + L":\n" +
-					Indent(Indent(val.second.toString(true))) + L",";
+				sResult += u8"\n\t"s + EncodeString(val.first) + u8":\n" +
+					Indent(Indent(val.second.toString(true))) + u8",";
 			}
 			if (m_oValue_Object.size() > 0)
 				sResult[sResult.length() - 1] = L'\n'; // replace last comma with linebreak
-			sResult += L"}";
+			sResult += u8"}";
 
 			return sResult;
 		}
@@ -450,7 +454,7 @@ namespace rlJSON
 				return EncodeString(m_sValue_String);
 		}
 
-		return L""; // to avoid compiler warning
+		return u8""; // to avoid compiler warning
 	}
 
 	const Array *Value::array() const noexcept
@@ -509,7 +513,7 @@ namespace rlJSON
 			return nullptr;
 	}
 
-	const std::wstring *Value::string() const noexcept
+	const std::u8string *Value::string() const noexcept
 	{
 		if (m_eType == Type::String)
 			return &m_sValue_String;
@@ -517,7 +521,7 @@ namespace rlJSON
 			return nullptr;
 	}
 
-	std::wstring *Value::string() noexcept
+	std::u8string *Value::string() noexcept
 	{
 		if (m_eType == Type::String)
 			return &m_sValue_String;
@@ -537,15 +541,15 @@ namespace rlJSON
 
 	namespace
 	{
-		void SkipWhitespace(const wchar_t *&sz)
+		void SkipWhitespace(const char8_t *&sz)
 		{
 			while (*sz <= 0xFF && isspace(*sz))
 				++sz;
 		}
 
-		bool ParseArray(const wchar_t *&sz, Array &oDest)
+		bool ParseArray(const char8_t *&sz, Array &oDest)
 		{
-			if (*sz != L'[')
+			if (*sz != u8'[')
 				return false;
 
 			oDest.clear();
@@ -554,7 +558,7 @@ namespace rlJSON
 			SkipWhitespace(sz);
 			while (*sz)
 			{
-				if (*sz == L']')
+				if (*sz == u8']')
 				{
 					++sz;
 					return true;
@@ -566,25 +570,25 @@ namespace rlJSON
 
 				oDest.push_back(o);
 
-				if (*sz == L',')
+				if (*sz == u8',')
 					++sz;
-				else if (*sz != L']')
+				else if (*sz != u8']')
 					return false; // invalid syntax. After a value must be either a "," or a "]".
 			}
 
 			return true;
 		}
 
-		bool ParseBoolean(const wchar_t *&sz, bool &bDest)
+		bool ParseBoolean(const char8_t *&sz, bool &bDest)
 		{
-			if (memcmp(sz, L"true", 8) == 0)
+			if (memcmp(sz, u8"true", 8) == 0)
 			{
 				bDest = true;
 				sz += 4;
 				return true;
 			}
 
-			if (memcmp(sz, L"false", 10) == 0)
+			if (memcmp(sz, u8"false", 10) == 0)
 			{
 				bDest = false;
 				sz += 5;
@@ -594,7 +598,7 @@ namespace rlJSON
 			return false;
 		}
 
-		bool ParseNull(const wchar_t *&sz)
+		bool ParseNull(const char8_t *&sz)
 		{
 			if (memcmp(sz, L"null", 8) == 0)
 			{
@@ -605,22 +609,22 @@ namespace rlJSON
 			return false;
 		}
 
-		bool ParseNumber(const wchar_t *&sz, Number &oDest)
+		bool ParseNumber(const char8_t *&sz, Number &oDest)
 		{
-			std::wregex regex(LR"REGEX(^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)REGEX");
-			std::wcmatch match;
-			if (!std::regex_search(sz, match, regex))
+			std::regex regex(R"REGEX(^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)REGEX");
+			std::cmatch match;
+			if (!std::regex_search(reinterpret_cast<const char *>(sz), match, regex))
 				return false; // no number found
 			
-			Value o = match[0].str();
+			Value o = rlText::ToU8String(match[0].str());
 			sz += match[0].length();
 			oDest = o.toNumber();
 			return true;
 		}
 
-		bool ParseObject(const wchar_t *&sz, Object &oDest)
+		bool ParseObject(const char8_t *&sz, Object &oDest)
 		{
-			if (*sz != L'{')
+			if (*sz != u8'{')
 				return false;
 
 			oDest.clear();
@@ -629,7 +633,7 @@ namespace rlJSON
 			SkipWhitespace(sz);
 			while (*sz)
 			{
-				if (*sz == L'}')
+				if (*sz == u8'}')
 				{
 					++sz;
 					return true;
@@ -642,10 +646,10 @@ namespace rlJSON
 				if (o.type() != Value::Type::String)
 					return false; // string expected
 
-				std::wstring sKey = o.toString();
+				std::u8string sKey = o.toString();
 				
 				SkipWhitespace(sz);
-				if (*sz != L':')
+				if (*sz != u8':')
 					return false; // after the value name always comes the ":"
 				++sz;
 
@@ -655,49 +659,49 @@ namespace rlJSON
 
 				oDest[sKey] = o;
 
-				if (*sz == L',')
+				if (*sz == u8',')
 					++sz;
-				else if (*sz != L'}')
+				else if (*sz != u8'}')
 					return false; // invalid syntax. After a value must be either a "," or a "}".
 			}
 
 			return true;
 		}
 
-		bool ParseHexDigit(wchar_t c, unsigned char &iDest)
+		bool ParseHexDigit(char8_t c, unsigned char &iDest)
 		{
-			if (c >= L'0' && c <= L'9')
+			if (c >= u8'0' && c <= u8'9')
 			{
-				iDest = c - L'0';
+				iDest = c - u8'0';
 				return true;
 			}
 			else if (c >= 'A' && c <= 'F')
 			{
-				iDest = c - L'A' + 0xA;
+				iDest = c - u8'A' + 0xA;
 				return true;
 			}
 			else if (c >= 'a' && c <= 'f')
 			{
-				iDest = c - L'a' + 0xA;
+				iDest = c - u8'a' + 0xA;
 				return true;
 			}
 
 			return false;
 		}
 
-		bool ParseString(const wchar_t *&sz, std::wstring &sDest)
+		bool ParseString(const char8_t *&sz, std::u8string &sDest)
 		{
-			if (*sz != L'"')
+			if (*sz != u8'"')
 				return false;
 
 			sDest.clear();
 			while (*(++sz))
 			{
 				// handle escape sequences
-				if (*sz == L'\\')
+				if (*sz == u8'\\')
 				{
 					++sz;
-					if (*sz == L'u')
+					if (*sz == u8'u')
 					{
 						unsigned char iHexValues[4]{};
 						if (!ParseHexDigit(sz[1], iHexValues[0]) ||
@@ -733,7 +737,7 @@ namespace rlJSON
 				}
 
 				// end of string
-				else if (*sz == L'"')
+				else if (*sz == u8'"')
 				{
 					++sz;
 					return true;
@@ -748,7 +752,7 @@ namespace rlJSON
 		}
 	}
 
-	bool Value::loadFromString(const wchar_t *& szJSON) noexcept
+	bool Value::loadFromString(const char8_t *& szJSON) noexcept
 	{
 		clear();
 
@@ -758,7 +762,7 @@ namespace rlJSON
 
 		switch (*szJSON)
 		{
-		case L'[': // [ --> Array
+		case u8'[': // [ --> Array
 		{
 			Array o;
 			if (!ParseArray(szJSON, o))
@@ -768,8 +772,8 @@ namespace rlJSON
 			break;
 		}
 
-		case L't': // t --> "true"  --> Boolean
-		case L'f': // f --> "false" --> Boolean
+		case u8't': // t --> "true"  --> Boolean
+		case u8'f': // f --> "false" --> Boolean
 		{
 			bool b;
 			if (!ParseBoolean(szJSON, b))
@@ -779,7 +783,7 @@ namespace rlJSON
 			break;
 		}
 
-		case L'n': // n --> "null"
+		case u8'n': // n --> "null"
 		{
 			if (!ParseNull(szJSON))
 				return false; // invalid syntax (null expected)
@@ -797,7 +801,7 @@ namespace rlJSON
 			break;
 		}
 
-		case L'{': // { --> Object
+		case u8'{': // { --> Object
 		{
 			Object o;
 			if (!ParseObject(szJSON, o))
@@ -807,9 +811,9 @@ namespace rlJSON
 			break;
 		}
 
-		case L'\"': // " --> String
+		case u8'\"': // " --> String
 		{
-			std::wstring s;
+			std::u8string s;
 			if (!ParseString(szJSON, s))
 				return false; // invalid syntax (string expected)
 
@@ -822,26 +826,26 @@ namespace rlJSON
 		return true;
 	}
 
-	bool Value::loadFromFile(const wchar_t *szPath) noexcept
+	bool Value::loadFromFile(const char8_t *szPath) noexcept
 	{
-		std::vector<std::wstring> oLines;
+		std::vector<std::u8string> oLines;
 
 		{
-			rlText::File file(rlText::UTF16toUTF8(szPath).c_str());
+			rlText::File file(szPath);
 			if (!file)
 				return false;
 			const auto iLineCount = file.getLineCount();
 			oLines.reserve(iLineCount);
 			for (size_t i = 0; i < iLineCount; ++i)
 			{
-				oLines.push_back(rlText::UTF8toUTF16(file.getLine(i).c_str()));
+				oLines.push_back(file.getLine(i));
 			}
 		}
 
 		if (oLines.size() == 0)
 			return false;
 
-		std::wstring sText;
+		std::u8string sText;
 		size_t iLen = oLines.size();
 		for (const auto &s : oLines)
 		{
@@ -851,7 +855,7 @@ namespace rlJSON
 		sText.reserve(iLen);
 		for (const auto &s : oLines)
 		{
-			sText += s + L"\n";
+			sText += s + u8"\n";
 		}
 		sText.erase(sText.length() - 1);
 		auto sz = sText.c_str();
@@ -868,7 +872,7 @@ namespace rlJSON
 		return true;
 	}
 
-	bool Value::saveToString(std::wstring &sJSON) const noexcept
+	bool Value::saveToString(std::u8string &sJSON) const noexcept
 	{
 		if (m_eType != Type::Array && m_eType != Type::Object)
 			return false;
@@ -877,15 +881,15 @@ namespace rlJSON
 		return true;
 	}
 
-	bool Value::saveToFile(const wchar_t *szPath) const noexcept
+	bool Value::saveToFile(const char8_t *szPath) const noexcept
 	{
-		std::wstring s;
+		std::u8string s;
 		if (!saveToString(s))
 			return false;
 
 		rlText::File file(RLTEXT_LINEBREAK_WINDOWS);
-		return (file.setAsSingleString(rlText::UTF16toUTF8(s.c_str()).c_str()) &&
-			file.save(rlText::UTF16toUTF8(szPath).c_str()));
+		return (file.setAsSingleString(s.c_str()) &&
+			file.save(szPath));
 	}
 
 }

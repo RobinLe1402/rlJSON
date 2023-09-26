@@ -6,6 +6,8 @@
 
 
 
+#include <rlTextDLL/Types.hpp>
+
 #include <cstdint>
 #include <string>
 
@@ -43,7 +45,7 @@ namespace rlJSON
 
 		Type type() const noexcept { return m_eType; }
 
-		std::wstring toString() const noexcept;
+		RLTEXT_UTF8STRING toString() const noexcept;
 
 		uintmax_t asUInt()  const noexcept;
 		intmax_t  asInt()   const noexcept;

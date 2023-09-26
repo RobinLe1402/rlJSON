@@ -1,5 +1,7 @@
 #include "rlJSON/Number.hpp"
 
+#include <rlTextDLL/UTF8StringHelper.hpp>
+
 #include <cmath>
 #include <iomanip>
 #include <sstream>
@@ -50,19 +52,24 @@ namespace rlJSON
 		m_uValue.dFloat = d;
 	}
 
-	std::wstring Number::toString() const noexcept
+	RLTEXT_UTF8STRING Number::toString() const noexcept
 	{
 		switch (m_eType)
 		{
 		case Type::UInt:
-			return std::to_wstring(m_uValue.iUnsigned);
+			return rlText::ToU8String(std::to_string(m_uValue.iUnsigned));
 		case Type::Int:
-			return std::to_wstring(m_uValue.iSigned);
+			return rlText::ToU8String(std::to_string(m_uValue.iSigned));
 		case Type::Float:
 		{
-			std::wstringstream ss;
+			std::stringstream ss;
 			ss << std::defaultfloat << std::setprecision(17) << m_uValue.dFloat;
-			std::wstring sResult = ss.str();
+			const auto sASCIIResult = ss.str();
+			RLTEXT_UTF8STRING sResult(sASCIIResult.length(), 0);
+			for (size_t i = 0; i < sASCIIResult.length(); ++i)
+			{
+				sResult[i] = sASCIIResult[i];
+			}
 
 			// if not exponential...
 			if (sResult.find('e') == sResult.npos)
@@ -79,7 +86,7 @@ namespace rlJSON
 		}
 		}
 
-		return L""; // to avoid compiler warning
+		return u8""; // to avoid compiler warning
 	}
 
 	uintmax_t Number::asUInt() const noexcept
