@@ -1,5 +1,6 @@
 #include "rlJSON/Value.hpp"
-#include "rlText/Core.hpp"
+#include "rlTextDLL/FileIO.hpp"
+#include "rlTextDLL/Windows.hpp"
 
 #include <algorithm>
 #include <regex>
@@ -824,7 +825,18 @@ namespace rlJSON
 	bool Value::loadFromFile(const wchar_t *szPath) noexcept
 	{
 		std::vector<std::wstring> oLines;
-		rlText::ReadAllLines(szPath, oLines);
+
+		{
+			rlText::File file(rlText::UTF16toUTF8(szPath).c_str());
+			if (!file)
+				return false;
+			const auto iLineCount = file.getLineCount();
+			oLines.reserve(iLineCount);
+			for (size_t i = 0; i < iLineCount; ++i)
+			{
+				oLines.push_back(rlText::UTF8toUTF16(file.getLine(i).c_str()));
+			}
+		}
 
 		if (oLines.size() == 0)
 			return false;
@@ -871,7 +883,9 @@ namespace rlJSON
 		if (!saveToString(s))
 			return false;
 
-		return rlText::WriteTextFile(szPath, { s });
+		rlText::File file(RLTEXT_LINEBREAK_WINDOWS);
+		return (file.setAsSingleString(rlText::UTF16toUTF8(s.c_str()).c_str()) &&
+			file.save(rlText::UTF16toUTF8(szPath).c_str()));
 	}
 
 }
