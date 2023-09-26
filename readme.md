@@ -5,7 +5,7 @@ This repo contains the static library `rlJSON`, a parser for JSON files.
 
 ## Dependencies
 
-> [!INFO]
+> [!NOTE]
 > The Visual Studio Project in this repo has some additional include and library paths set you might
 want to change/remove.
 > 
