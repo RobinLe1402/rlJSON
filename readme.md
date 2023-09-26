@@ -2,6 +2,8 @@
 
 This repo contains the static library `rlJSON`, a parser for JSON files.
 
+Strings are UTF-8 encoded.
+
 
 ## Dependencies
 
