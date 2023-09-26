@@ -1,4 +1,6 @@
 #include "rlJSON/Value.hpp"
+#include <rlTextDLL/Decode.hpp>
+#include <rlTextDLL/Encode.hpp>
 #include <rlTextDLL/FileIO.hpp>
 #include <rlTextDLL/Types.h>
 #include <rlTextDLL/UTF8StringHelper.hpp>
@@ -32,12 +34,12 @@ namespace rlJSON
 
 			// 2. indent the lines
 			sResult.reserve(sResult.length() + iLineCount);
-			sResult.insert(0, 1, L'\t'); // start of text
+			sResult.insert(0, 1, '\t'); // start of text
 			for (size_t i = sResult.length(); i > 1; --i)
 			{
 				const auto c = sResult[i - 1];
 				if (c == '\n')
-					sResult.insert(i, 1, L'\t');
+					sResult.insert(i, 1, '\t');
 			}
 
 			return sResult;
@@ -61,9 +63,9 @@ namespace rlJSON
 
 			// 1. count characters to be escaped
 			size_t iEscapedCount = 0;
-			for (wchar_t c : sEncoded)
+			for (char8_t c : sEncoded)
 			{
-				if (c & 0xFF00)
+				if (c & 0x80)
 					continue; // only ASCII characters are escaped
 
 				const auto it = oEscapeChars.find((char)c);
@@ -75,9 +77,9 @@ namespace rlJSON
 			sEncoded.reserve(sEncoded.length() + iEscapedCount + 2);
 			for (size_t i = sEncoded.length(); i > 0; --i)
 			{
-				const wchar_t c = sEncoded[i - 1];
+				const char8_t c = sEncoded[i - 1];
 
-				if (c & 0xFF00)
+				if (c & 0x80)
 					continue; // only ASCII characters are escaped
 
 				const auto it = oEscapeChars.find((char)c);
@@ -238,17 +240,11 @@ namespace rlJSON
 			o.reserve(m_sValue_String.length());
 			for (size_t i = 0; i < m_sValue_String.length(); ++i)
 			{
-				const wchar_t c = m_sValue_String[i];
-				if ((c & 0xFC00) == 0xD800)
-				{
-					++i;
-					std::u8string s(2, ' ');
-					s[0] = c;
-					s[1] = m_sValue_String[i];
-					o.push_back(std::move(s));
-				}
-				else
-					o.push_back(c);
+				char32_t chDummy;
+				const auto len = rlText::DecodeUTF8(&m_sValue_String[i], chDummy);
+
+				o.push_back(m_sValue_String.substr(0, len));
+				i += (size_t)len - 1;
 			}
 			o.shrink_to_fit();
 			return o;
@@ -441,7 +437,7 @@ namespace rlJSON
 					Indent(Indent(val.second.toString(true))) + u8",";
 			}
 			if (m_oValue_Object.size() > 0)
-				sResult[sResult.length() - 1] = L'\n'; // replace last comma with linebreak
+				sResult[sResult.length() - 1] = '\n'; // replace last comma with linebreak
 			sResult += u8"}";
 
 			return sResult;
@@ -581,17 +577,17 @@ namespace rlJSON
 
 		bool ParseBoolean(const char8_t *&sz, bool &bDest)
 		{
-			if (memcmp(sz, u8"true", 8) == 0)
+			if (u8"true"s == sz)
 			{
 				bDest = true;
-				sz += 4;
+				sz   += 4;
 				return true;
 			}
 
-			if (memcmp(sz, u8"false", 10) == 0)
+			if (u8"false"s == sz)
 			{
 				bDest = false;
-				sz += 5;
+				sz   += 5;
 				return true;
 			}
 
@@ -600,7 +596,7 @@ namespace rlJSON
 
 		bool ParseNull(const char8_t *&sz)
 		{
-			if (memcmp(sz, L"null", 8) == 0)
+			if (u8"null"s == sz)
 			{
 				sz += 4;
 				return true;
@@ -710,12 +706,36 @@ namespace rlJSON
 							!ParseHexDigit(sz[4], iHexValues[3]))
 							return false; // invalid Unicode escape sequence
 
-						wchar_t c = iHexValues[3];
-						c |= wchar_t(iHexValues[2]) << 4;
-						c |= wchar_t(iHexValues[1]) << 8;
-						c |= wchar_t(iHexValues[0]) << 12;
+						char32_t c = iHexValues[3];
+						c |= char32_t(iHexValues[2]) << 4;
+						c |= char32_t(iHexValues[1]) << 8;
+						c |= char32_t(iHexValues[0]) << 12;
 
-						sDest += c;
+						rlText::UTF8Codepoint cp;
+						rlText::EncodeUTF8(c, cp);
+						sDest.reserve(sDest.length() + cp.count);
+						switch (cp.count)
+						{
+						case 1:
+							sDest += cp.ch[0];
+							break;
+						case 2:
+							sDest += cp.ch[0];
+							sDest += cp.ch[1];
+							break;
+						case 3:
+							sDest += cp.ch[0];
+							sDest += cp.ch[1];
+							sDest += cp.ch[2];
+							break;
+						case 4:
+							sDest += cp.ch[0];
+							sDest += cp.ch[1];
+							sDest += cp.ch[2];
+							sDest += cp.ch[3];
+							break;
+						}
+
 						sz += 5; // u + 4 digits
 					}
 

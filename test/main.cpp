@@ -12,10 +12,10 @@ int main(int argc, char* argv[])
 	auto &oRootData = *oRoot.object();
 
 	oRootData[u8"testnull"]   = {};
-	oRootData[u8"testarray"]  = rlJSON::Array({ 1, L"2", 3.1 });
+	oRootData[u8"testarray"]  = rlJSON::Array({ 1, u8"2", 3.1 });
 	oRootData[u8"testbool"]   = false;
 	oRootData[u8"testnumber"] = 12;
-	oRootData[u8"teststring"] = L"ASDF";
+	oRootData[u8"teststring"] = u8"ASDF";
 	oRootData[u8"testobject"] = rlJSON::Object(
 		{
 			{ u8"named-item", 0 },

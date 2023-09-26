@@ -79,7 +79,7 @@ namespace rlJSON
 				if (std::modf(m_uValue.dFloat, &dTMP) != 0.0)
 				{
 					// ... remove all the trailing zeros.
-					sResult = sResult.substr(0, sResult.find_last_not_of(L'0') + 1);
+					sResult = sResult.substr(0, sResult.find_last_not_of('0') + 1);
 				}
 			}
 			return sResult;
