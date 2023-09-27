@@ -81,14 +81,14 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProgramFiles)\RobinLe\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RobinLeApps)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(RobinLe_Lib)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(RobinLeApps)/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>rlText.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
@@ -101,7 +101,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProgramFiles)\RobinLe\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RobinLeApps)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -110,7 +110,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(RobinLe_Lib)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(RobinLeApps)/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>rlText.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
@@ -121,14 +121,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProgramFiles)\RobinLe\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RobinLeApps)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(RobinLe_Lib)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(RobinLeApps)/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>rlText.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
@@ -141,7 +141,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProgramFiles)\RobinLe\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RobinLeApps)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,7 +150,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(RobinLe_Lib)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(RobinLeApps)/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>rlText.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
