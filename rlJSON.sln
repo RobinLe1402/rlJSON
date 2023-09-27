@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rlJSON", "rlJSON.vcxproj", "{3EA67F33-9D3C-440E-AFE3-74689403F372}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "library (static)", "src\static.vcxproj", "{3EA67F33-9D3C-440E-AFE3-74689403F372}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{EF7C8981-35E2-4967-8B12-399BBF5A1647}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test (static)", "test\teststatic.vcxproj", "{EF7C8981-35E2-4967-8B12-399BBF5A1647}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
