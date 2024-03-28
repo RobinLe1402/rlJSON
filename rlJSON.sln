@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "library (static)", "src\static.vcxproj", "{3EA67F33-9D3C-440E-AFE3-74689403F372}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rlJSON (static)", "src\static.vcxproj", "{3EA67F33-9D3C-440E-AFE3-74689403F372}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test (static)", "test\teststatic.vcxproj", "{EF7C8981-35E2-4967-8B12-399BBF5A1647}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rlText (dynamic)", "dependencies\rlText\src\dynamic.vcxproj", "{0E0DC5AE-EA83-44D3-ADD9-AE00D2C31268}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,14 @@ Global
 		{EF7C8981-35E2-4967-8B12-399BBF5A1647}.Release|x64.Build.0 = Release|x64
 		{EF7C8981-35E2-4967-8B12-399BBF5A1647}.Release|x86.ActiveCfg = Release|Win32
 		{EF7C8981-35E2-4967-8B12-399BBF5A1647}.Release|x86.Build.0 = Release|Win32
+		{0E0DC5AE-EA83-44D3-ADD9-AE00D2C31268}.Debug|x64.ActiveCfg = Debug|x64
+		{0E0DC5AE-EA83-44D3-ADD9-AE00D2C31268}.Debug|x64.Build.0 = Debug|x64
+		{0E0DC5AE-EA83-44D3-ADD9-AE00D2C31268}.Debug|x86.ActiveCfg = Debug|x64
+		{0E0DC5AE-EA83-44D3-ADD9-AE00D2C31268}.Debug|x86.Build.0 = Debug|x64
+		{0E0DC5AE-EA83-44D3-ADD9-AE00D2C31268}.Release|x64.ActiveCfg = Release|x64
+		{0E0DC5AE-EA83-44D3-ADD9-AE00D2C31268}.Release|x64.Build.0 = Release|x64
+		{0E0DC5AE-EA83-44D3-ADD9-AE00D2C31268}.Release|x86.ActiveCfg = Release|x64
+		{0E0DC5AE-EA83-44D3-ADD9-AE00D2C31268}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
