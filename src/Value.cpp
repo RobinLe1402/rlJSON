@@ -96,6 +96,12 @@ namespace rlJSON
 			return sEncoded;
 		}
 
+		bool IsWordChar(char c)
+		{
+			return
+				c == '_' || ((c ^ 0x80) && (std::isalpha(c) || std::isdigit(c)));
+		}
+
 	}
 
 
@@ -577,18 +583,38 @@ namespace rlJSON
 
 		bool ParseBoolean(const char8_t *&sz, bool &bDest)
 		{
-			if (u8"true"s == sz)
+			if (sz[0] == 't')
 			{
-				bDest = true;
-				sz   += 4;
-				return true;
-			}
+				if (
+					sz[1] == 'r' &&
+					sz[2] == 'u' &&
+					sz[3] == 'e' &&
+					!IsWordChar(sz[4])
+				)
+				{
+					bDest = true;
+					sz   += 4;
+					return true;
+				}
 
-			if (u8"false"s == sz)
+				return false;
+			}
+			else if (sz[0] == 'f')
 			{
-				bDest = false;
-				sz   += 5;
-				return true;
+				if (
+					sz[1] == 'a' &&
+					sz[2] == 'l' &&
+					sz[3] == 's' &&
+					sz[4] == 'e' &&
+					!IsWordChar(sz[5])
+				)
+				{
+					bDest = false;
+					sz   += 5;
+					return true;
+				}
+
+				return false;
 			}
 
 			return false;
@@ -596,7 +622,11 @@ namespace rlJSON
 
 		bool ParseNull(const char8_t *&sz)
 		{
-			if (u8"null"s == sz)
+			if (sz[0] == 'n' &&
+				sz[1] == 'u' &&
+				sz[2] == 'l' &&
+				sz[3] == 'l' &&
+				!IsWordChar(sz[4]))
 			{
 				sz += 4;
 				return true;
