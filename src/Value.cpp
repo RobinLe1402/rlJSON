@@ -478,7 +478,7 @@ namespace rlJSON
 	bool Value::boolean() const noexcept
 	{
 		if (m_eType == Type::Boolean)
-			return &m_bValue_Boolean;
+			return m_bValue_Boolean;
 		else
 			return false;
 	}
